@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>作文批改 · 现有页面</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 18px;
+    }
+
+    .notice {
+      padding: 9px 11px;
+      background: #eef6ff;
+      border: 1px solid #b8d9ff;
+      color: #205c99;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .form {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 4px;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 220px;
+      line-height: 1.8;
+    }
+
+    button {
+      border: 1px solid #1677ff;
+      background: #1677ff;
+      color: #fff;
+      padding: 9px 16px;
+      border-radius: 4px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      white-space: pre-wrap;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .topbar button {
+      background: #fff;
+      color: #1677ff;
+      border: 1px solid #1677ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <button id="complete-preview" disabled>完成预览，返回后台</button>
+    </div>
+    <h1>作文批改</h1>
+    <div class="notice">此处代表现有批改页面，本次演示只做最小展示，不属于配置后台的设计范围。</div>
+    <div class="form">
+      <label for="grade">年级</label>
+      <select id="grade">
+        <option>三年级</option>
+        <option>四年级</option>
+        <option>五年级</option>
+        <option>六年级</option>
+      </select>
+      <label for="essay">学生作文</label>
+      <textarea id="essay">《我家的阳台》
+
+我家有一个小小的阳台。夏天的时候，妈妈在阳台种了很多花。有红色的月季，也有绿绿的薄荷。风一吹，叶子就轻轻摇起来，像在和我招手。
+
+我最喜欢傍晚坐在阳台的小椅子上。那时候太阳落下去，天空变成橙红色。我闻得到薄荷的香味，也能听见楼下小朋友笑的声音。有一次，我还看见一只小鸟停在栏杆上，它歪着头看我，我也慢慢不敢动。
+
+我喜欢这个阳台，因为它让我觉得很安静，也很快乐。</textarea>
+      <button id="run">开始批改</button>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const run = document.getElementById("run");
+    const result = document.getElementById("result");
+    const complete = document.getElementById("complete-preview");
+
+    run.addEventListener("click", () => {
+      run.disabled = true;
+      run.textContent = "正在批改…";
+      result.textContent = "";
+      setTimeout(() => {
+        result.textContent = "全文总评：这篇作文选材真实，写的是自己家里的阳台，读起来亲切自然。\n\n详细点评：审题与选材清楚；结构与详略完整；语言有画面感；情感与立意还可以写得更具体；基本功整体通顺。\n\n全文润色：已生成最小改动版和升格润色版。\n\n逐段旁批：开头交代清楚；中间一段最有画面感；结尾说出感受，还可以再补充原因。\n\n进步寄语：宝贝，老师已经按该年级的习作要求认真读完了你这篇。只要你坚持自己观察、认真修改，每一篇都会比上一篇进步一点点。";
+        run.disabled = false;
+        run.textContent = "重新批改";
+        complete.disabled = false;
+      }, 900);
+    });
+
+    complete.addEventListener("click", () => {
+      if (window.parent) {
+        window.parent.postMessage({ type: "preview-done" }, "*");
+      }
+    });
+  </script>
+</body>
+</html>

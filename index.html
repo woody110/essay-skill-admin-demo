@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>作文批改Skill管理后台</title>
+  <style>
+    :root {
+      --primary: #f5633f;
+      --primary-hover: #e8512c;
+      --primary-light: #fff1ec;
+      --blue: #2e6be6;
+      --success: #4fae6b;
+      --warning: #d98b22;
+      --danger: #e94a3f;
+      --text: #1f2733;
+      --text-secondary: #5c6b7a;
+      --text-muted: #8c9aa8;
+      --border: #ebedf0;
+      --bg: #f5f6f8;
+      --panel: #ffffff;
+      --sidebar: #ffffff;
+      --sidebar-active: var(--primary-light);
+      --shadow: 0 1px 2px rgba(31, 39, 51, 0.04);
+      --radius: 6px;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(245, 99, 63, 0.18);
+      outline-offset: 1px;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 224px;
+      flex: 0 0 224px;
+      background: var(--sidebar);
+      color: var(--text);
+      border-right: 1px solid var(--border);
+      padding: 24px 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .side-group {
+      padding: 4px 14px 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      background: transparent;
+      color: var(--text-secondary);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .menu-item:hover {
+      background: #f6f7f9;
+      color: var(--text);
+    }
+
+    .menu-item.active {
+      background: var(--sidebar-active);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .menu-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 3px;
+      height: 22px;
+      border-radius: 0 3px 3px 0;
+      background: var(--primary);
+    }
+
+    .menu-item {
+      position: relative;
+    }
+
+    .menu-icon {
+      width: 16px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 0 24px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 72px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--primary);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .env-tag {
+      padding: 4px 8px;
+      border: 1px solid #f5c9b8;
+      border-radius: 999px;
+      color: var(--primary);
+      background: var(--primary-light);
+      font-size: 12px;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+      animation: fade 0.18s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .page-desc {
+      margin: 7px 0 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .step.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .step.done {
+      color: var(--success);
+    }
+
+    .step-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid currentColor;
+      font-size: 11px;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      min-width: 24px;
+    }
+
+    .step-line.done {
+      background: var(--success);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .card-sub {
+      margin: 4px 0 0;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .tag.success {
+      color: #389e0d;
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+    }
+
+    .tag.warning {
+      color: #d46b08;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+    }
+
+    .tag.blue {
+      color: var(--blue);
+      background: #eef3ff;
+      border: 1px solid #c3d2fb;
+    }
+
+    .info-list {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 11px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .info-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .info-row .label {
+      color: var(--text-secondary);
+      flex: 0 0 auto;
+    }
+
+    .info-row .value {
+      color: var(--text);
+      text-align: right;
+    }
+
+    .content-preview {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 4px;
+      background: #fafbfc;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.7;
+      max-height: 190px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .history-block {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-head h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .history-count {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .history-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .history-main {
+      min-width: 0;
+    }
+
+    .history-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .history-meta {
+      margin: 3px 0 0;
+      color: var(--text-muted);
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+
+    .btn {
+      border: 1px solid #d9dee5;
+      border-radius: 4px;
+      padding: 8px 16px;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn:disabled {
+      color: #b6bfca;
+      background: #f5f7fa;
+      cursor: not-allowed;
+      border-color: #e4e9ef;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn.primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      color: #fff;
+    }
+
+    .btn.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    .btn.danger:hover:not(:disabled) {
+      opacity: 0.9;
+      color: #fff;
+    }
+
+    .btn.text {
+      border-color: transparent;
+      background: transparent;
+      color: var(--primary);
+      padding: 4px 8px;
+    }
+
+    .btn.text:hover:not(:disabled) {
+      background: #f0f8ff;
+      border-color: transparent;
+    }
+
+    .notice {
+      margin-top: 12px;
+      padding: 9px 11px;
+      border-radius: 4px;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      color: #8c6a00;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: 600;
+      background: #fafbfc;
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 20;
+      padding: 20px;
+    }
+
+    .modal-mask.open {
+      display: grid;
+    }
+
+    .modal {
+      width: min(440px, 100%);
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .modal-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 18px;
+    }
+
+    .modal-body .alert {
+      margin-bottom: 16px;
+      padding: 11px 12px;
+      border-radius: 4px;
+      background: #fff2f0;
+      border: 1px solid #ffccc7;
+      color: #a8071a;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .modal-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .modal-info div {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .modal-info .label {
+      color: var(--text-secondary);
+    }
+
+    .modal-info .value {
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .preview-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 30;
+      background: #fff;
+    }
+
+    .preview-mask.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 52px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+
+    .preview-toolbar .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-frame {
+      flex: 1;
+      border: 0;
+      width: 100%;
+      background: #fafafa;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      transform: translateY(16px);
+      opacity: 0;
+      transition: all 0.2s ease;
+      padding: 10px 14px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.82);
+      color: #fff;
+      font-size: 13px;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 860px) {
+      .sidebar {
+        width: 60px;
+        flex-basis: 60px;
+        padding: 20px 6px;
+      }
+
+      .side-group,
+      .menu-item span {
+        display: none;
+      }
+
+      .menu-item {
+        justify-content: center;
+        padding: 11px;
+      }
+
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .steps {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-group">我的</div>
+      <nav class="menu">
+        <button class="menu-item active" data-page="skill">
+          <span class="menu-icon">▦</span>
+          <span>Skill 配置</span>
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">作</div>
+          <div>
+            <div class="brand-title">作文批改Skill管理后台</div>
+            <div class="brand-sub">Skill 配置与发布</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="env-tag">生产环境</span>
+          <div class="user">
+            <div class="avatar">林</div>
+            <span>林老师</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="page active" id="page-skill">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">作文诊断与辅导 Skill</h1>
+            <p class="page-desc">管理当前线上版本和草稿版本。草稿需先完成预览，才能发布到线上。</p>
+          </div>
+        </div>
+
+        <div class="steps" id="steps">
+          <div class="step done" data-step="0"><span class="step-dot">✓</span><span>上传草稿</span></div>
+          <div class="step-line done"></div>
+          <div class="step active" data-step="1"><span class="step-dot">2</span><span>预览效果</span></div>
+          <div class="step-line"></div>
+          <div class="step" data-step="2"><span class="step-dot">3</span><span>发布到线上</span></div>
+        </div>
+
+        <div class="grid-two">
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title">当前线上版本</h2>
+                <p class="card-sub">线上正在使用的 Skill</p>
+              </div>
+              <span class="tag success" id="online-tag">线上版 · v1.2</span>
+            </div>
+            <div class="card-body">
+              <dl class="info-list">
+                <div class="info-row">
+                  <dt class="label">版本名称</dt>
+                  <dd class="value" id="online-title">作文诊断与辅导 · 最终版</dd>
+                </div>
+                <div class="info-row">
+                  <dt class="label">发布人</dt>
+                  <dd class="value">林老师</dd>
+                </div>
+                <div class="info-row">
+                  <dt class="label">发布时间</dt>
+                  <dd class="value">2026-09-02 18:20</dd>
+                </div>
+                <div class="info-row">
+                  <dt class="label">状态</dt>
+                  <dd class="value">已发布</dd>
+                </div>
+              </dl>
+              <div class="button-row">
+                <button class="btn" id="download-btn">下载线上skill</button>
+                <button class="btn" id="history-entry-btn">发布记录</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title">当前草稿版本</h2>
+                <p class="card-sub">上传 skill 后生成草稿</p>
+              </div>
+              <span class="tag warning" id="draft-tag">未上传</span>
+            </div>
+            <div class="card-body">
+              <dl class="info-list">
+                <div class="info-row">
+                  <dt class="label">版本名称</dt>
+                  <dd class="value" id="draft-title">暂无草稿</dd>
+                </div>
+                <div class="info-row">
+                  <dt class="label">来源</dt>
+                  <dd class="value" id="draft-source">—</dd>
+                </div>
+                <div class="info-row">
+                  <dt class="label">基于版本</dt>
+                  <dd class="value" id="draft-base">—</dd>
+                </div>
+                <div class="info-row">
+                  <dt class="label">预览状态</dt>
+                  <dd class="value" id="preview-status">未上传</dd>
+                </div>
+              </dl>
+              <div class="content-preview" id="draft-preview">请先上传 skill 文件，生成草稿后即可预览。</div>
+              <div class="button-row">
+                <button class="btn" id="upload-btn">上传skill</button>
+                <button class="btn" id="preview-btn" style="display:none">去预览</button>
+                <button class="btn primary" id="publish-btn" style="display:none">发布到线上</button>
+              </div>
+              <div class="notice" id="publish-notice" style="display:none">上传 skill 后，可先预览再发布。</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-history">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">发布记录</h1>
+            <p class="page-desc">历史版本仅支持下载，不支持回滚。</p>
+          </div>
+          <button class="btn" id="back-to-skill">返回 Skill 配置</button>
+        </div>
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title">历史版本</h2>
+              <p class="card-sub">共 <span id="history-count">1</span> 条记录</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>版本</th>
+                  <th>版本名称</th>
+                  <th>发布人</th>
+                  <th>发布时间</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="history-body">
+                <tr>
+                  <td>v1.2</td>
+                  <td>作文诊断与辅导 · 最终版</td>
+                  <td>林老师</td>
+                  <td>2026-09-02 18:20</td>
+                  <td><span class="tag success">已发布</span></td>
+                  <td><button class="btn text" data-history-action="下载">下载</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <input class="sr-only" type="file" id="file-input" accept=".md,.txt">
+
+  <div class="modal-mask" id="publish-modal" role="dialog" aria-modal="true" aria-labelledby="publish-title">
+    <div class="modal">
+      <div class="modal-head" id="publish-title">确认发布到线上</div>
+      <div class="modal-body">
+        <p>发布后线上立即使用新版本，请确认已经完成预览并认可效果</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" id="cancel-publish">取消</button>
+        <button class="btn primary" id="confirm-publish">确认发布</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-mask" id="preview-mask">
+    <div class="preview-toolbar">
+      <div class="left">
+        <span class="tag blue">使用草稿 Skill</span>
+        <span>现有批改页面</span>
+      </div>
+      <button class="btn" id="close-preview">关闭预览</button>
+    </div>
+    <iframe class="preview-frame" id="preview-frame" src="grading.html" title="现有批改页面"></iframe>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      publishedVersion: "v1.2",
+      publishedTitle: "作文诊断与辅导 · 最终版",
+      publishedPreview: "输入作文与年级，匹配单元习作量尺，输出全文总评、详细点评、两版润色、逐段旁批与固定进步寄语。",
+      hasDraft: false,
+      draftVersion: "v1.3",
+      draftTitle: "作文诊断与辅导 · 本地修改版",
+      draftPreview: "在 v1.2 基础上调整逐段旁批的订正规则，并优化升格润色版的语气。",
+      previewed: false,
+      historyCount: 1
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      window.clearTimeout(toast._timer);
+      toast._timer = window.setTimeout(() => el.classList.remove("show"), 2400);
+    }
+
+    function showPublishNotice(message) {
+      const el = $("publish-notice");
+      el.textContent = message;
+      el.style.display = "block";
+      window.clearTimeout(showPublishNotice._timer);
+      showPublishNotice._timer = window.setTimeout(() => {
+        el.style.display = "none";
+      }, 2600);
+    }
+
+    function switchPage(name) {
+      document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
+      $("page-" + name).classList.add("active");
+      document.querySelectorAll(".menu-item").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.page === name);
+      });
+    }
+
+    function renderSteps() {
+      const steps = document.querySelectorAll(".step");
+      const lines = document.querySelectorAll(".step-line");
+      steps.forEach((step, index) => {
+        step.classList.remove("active", "done");
+        if (!state.hasDraft) {
+          if (index === 0) step.classList.add("active");
+        } else if (!state.previewed) {
+          if (index === 0) step.classList.add("done");
+          if (index === 1) step.classList.add("active");
+        } else {
+          if (index <= 1) step.classList.add("done");
+          if (index === 2) step.classList.add("active");
+        }
+      });
+      lines.forEach((line, index) => {
+        if (!state.hasDraft) {
+          line.classList.remove("done");
+        } else if (!state.previewed) {
+          line.classList.toggle("done", index === 0);
+        } else {
+          line.classList.add("done");
+        }
+      });
+    }
+
+    function renderSkillPage() {
+      $("draft-tag").textContent = !state.hasDraft ? "未上传" : (state.previewed ? "草稿 · 待发布" : "草稿 · 待预览");
+      $("draft-tag").className = "tag " + (!state.hasDraft ? "warning" : (state.previewed ? "blue" : "warning"));
+      $("preview-status").textContent = !state.hasDraft ? "未上传" : (state.previewed ? "待发布" : "未预览");
+      $("upload-btn").textContent = state.hasDraft ? "重新上传" : "上传skill";
+      $("preview-btn").style.display = state.hasDraft ? "" : "none";
+      $("publish-btn").style.display = state.hasDraft ? "" : "none";
+      $("publish-notice").style.display = "none";
+      renderSteps();
+    }
+
+    document.querySelectorAll(".menu-item").forEach((btn) => {
+      btn.addEventListener("click", () => switchPage(btn.dataset.page));
+    });
+
+    $("history-entry-btn").addEventListener("click", () => switchPage("history"));
+
+    $("back-to-skill").addEventListener("click", () => switchPage("skill"));
+
+    $("download-btn").addEventListener("click", () => {
+      toast("已开始下载当前线上版 v1.2");
+    });
+
+    $("upload-btn").addEventListener("click", () => $("file-input").click());
+
+    $("file-input").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      state.hasDraft = true;
+      state.draftVersion = "v1.3";
+      state.draftTitle = file.name.replace(/\.(md|txt)$/i, "");
+      state.draftPreview = "刚刚从本地文件上传，尚未预览。";
+      state.previewed = false;
+      $("draft-title").textContent = state.draftTitle;
+      $("draft-source").textContent = "本地文件：" + file.name;
+      $("draft-base").textContent = state.publishedVersion;
+      $("draft-preview").textContent = state.draftPreview;
+      $("draft-preview").style.display = "";
+      renderSkillPage();
+      toast("已上传 skill：" + file.name);
+      event.target.value = "";
+    });
+
+    $("preview-btn").addEventListener("click", () => {
+      state.previewed = true;
+      state.draftPreview = "";
+      $("draft-preview").textContent = "";
+      $("draft-preview").style.display = "none";
+      renderSkillPage();
+      $("preview-mask").classList.add("open");
+    });
+
+    $("close-preview").addEventListener("click", () => {
+      $("preview-mask").classList.remove("open");
+    });
+
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.type === "preview-done") {
+        state.previewed = true;
+        renderSkillPage();
+        $("preview-mask").classList.remove("open");
+        toast("预览已完成，可以发布到线上");
+      }
+    });
+
+    $("publish-btn").addEventListener("click", () => {
+      if (!state.previewed) {
+        showPublishNotice("需先完成一次预览，才允许发布");
+        return;
+      }
+      $("publish-modal").classList.add("open");
+    });
+
+    $("cancel-publish").addEventListener("click", () => {
+      $("publish-modal").classList.remove("open");
+    });
+
+    $("publish-modal").addEventListener("click", (event) => {
+      if (event.target === $("publish-modal")) {
+        $("publish-modal").classList.remove("open");
+      }
+    });
+
+    $("confirm-publish").addEventListener("click", () => {
+      state.publishedVersion = state.draftVersion;
+      state.publishedTitle = state.draftTitle;
+      state.publishedPreview = state.draftPreview;
+      state.draftVersion = "v1.4";
+      state.draftTitle = "暂无草稿";
+      state.draftPreview = "请先上传 skill 文件，生成草稿后即可预览。";
+      state.hasDraft = false;
+      state.previewed = false;
+      state.historyCount += 1;
+
+      $("online-tag").textContent = "线上版 · " + state.publishedVersion;
+      $("online-title").textContent = state.publishedTitle;
+      $("draft-title").textContent = state.draftTitle;
+      $("draft-source").textContent = "—";
+      $("draft-base").textContent = "—";
+      $("draft-preview").textContent = state.draftPreview;
+      $("draft-preview").style.display = "";
+      $("history-count").textContent = state.historyCount;
+
+      const body = $("history-body");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${state.publishedVersion}</td>
+        <td>${state.publishedTitle}</td>
+        <td>林老师</td>
+        <td>2026-09-03 19:40</td>
+        <td><span class="tag success">已发布</span></td>
+        <td><button class="btn text" data-history-action="下载">下载</button></td>
+      `;
+      body.prepend(row);
+      $("publish-modal").classList.remove("open");
+      renderSkillPage();
+      toast("已发布 " + state.publishedVersion + "，线上已生效");
+    });
+
+    document.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-history-action]")?.dataset.historyAction;
+      if (action) {
+        toast("已" + action + "该历史版本");
+      }
+    });
+
+    renderSkillPage();
+  </script>
+</body>
+</html>
