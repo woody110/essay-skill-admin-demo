@@ -943,7 +943,7 @@
         <span class="tag blue">使用草稿 Skill</span>
         <span>现有批改页面</span>
       </div>
-      <button class="btn" id="close-preview">关闭预览</button>
+      <button class="btn" id="close-preview">完成预览，返回后台</button>
     </div>
     <iframe class="preview-frame" id="preview-frame" src="grading.html" title="现有批改页面"></iframe>
   </div>
@@ -1070,7 +1070,10 @@
     });
 
     $("close-preview").addEventListener("click", () => {
+      state.previewed = true;
+      renderSkillPage();
       $("preview-mask").classList.remove("open");
+      toast("预览已完成，可以发布到线上");
     });
 
     window.addEventListener("message", (event) => {

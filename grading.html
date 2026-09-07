@@ -100,9 +100,6 @@
 </head>
 <body>
   <div class="page">
-    <div class="topbar">
-      <button id="complete-preview" disabled>完成预览，返回后台</button>
-    </div>
     <h1>作文批改</h1>
     <div class="notice">此处代表现有批改页面，本次演示只做最小展示，不属于配置后台的设计范围。</div>
     <div class="form">
@@ -129,7 +126,6 @@
   <script>
     const run = document.getElementById("run");
     const result = document.getElementById("result");
-    const complete = document.getElementById("complete-preview");
 
     run.addEventListener("click", () => {
       run.disabled = true;
@@ -139,14 +135,7 @@
         result.textContent = "全文总评：这篇作文选材真实，写的是自己家里的阳台，读起来亲切自然。\n\n详细点评：审题与选材清楚；结构与详略完整；语言有画面感；情感与立意还可以写得更具体；基本功整体通顺。\n\n全文润色：已生成最小改动版和升格润色版。\n\n逐段旁批：开头交代清楚；中间一段最有画面感；结尾说出感受，还可以再补充原因。\n\n进步寄语：宝贝，老师已经按该年级的习作要求认真读完了你这篇。只要你坚持自己观察、认真修改，每一篇都会比上一篇进步一点点。";
         run.disabled = false;
         run.textContent = "重新批改";
-        complete.disabled = false;
       }, 900);
-    });
-
-    complete.addEventListener("click", () => {
-      if (window.parent) {
-        window.parent.postMessage({ type: "preview-done" }, "*");
-      }
     });
   </script>
 </body>
